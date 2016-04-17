@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Word Pacer</title>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/6.0.1/markdown-it.js"></script>
+        <script type="text/javascript">
+function strip(html) {
+    var tmp = document.createElement("DIV");
+    tmp.innerHTML = html
+    return tmp.textContent || tmp.innerText || "";
+}
+function getWords(sentence) {
+    var words = sentence.split(/[ \u2014]/);
+    for (var i = 0; i < words.length; i++) {
+        words[i] = words[i].replace(/[^A-za-z0-9]+/gi, ''); // Remove special characters
+    }
+    //XXX Workaround: My regex tends to add an empty element at the front of the array for non-first sentences. The following trims that
+    if (words[0] == "") {
+        words.splice(0, 1);
+    }
+    return words;
+}
+function getWordlengths(words) {
+    var wordlengths = [];
+    for (var j = 0; j < words.length; j++) {
+        wordlengths.push(words[j].length);
+    }
+    return wordlengths;
+}
+function getCurrentVelocity(velocities, currentVelocity = 0) {
+    var currentVelocity;
+    if (velocities.length > 0) {
+        currentVelocity = velocities[velocities.length - 1];
+    }
+    else {
+        currentVelocity = currentVelocity;
+    }
+    return currentVelocity;
+}
+function calculateVelocity(wordlength, currentVelocity) {
+    var velocity;
+    // Less than 5 letters = velocity increases by letter count
+    if (wordlength < 5) {
+        velocity = currentVelocity + wordlength;
+    }
+    // Words 4-8 letters long maintain velocity
+    if (wordlength > 4 && wordlength < 8) {
+        velocity = currentVelocity;
+    }
+    // Words greater than 7 letters long lose velocity for each letter over 8
+    else {
+        velocity = currentVelocity - wordlength + 8;
+    }
+    return velocity;
+}
+function getWordVelocities(words, multiplier, currentVelocity) {
+    var velocities = [];
+
+    // One-word sentences set velocity to the length of the word
+    if (words.length == 1) {
+        velocities.push(words[0].length);
+        //console.log(words, velocities); //DEBUG
+    }
+    // Sentences with more than 15 words drop velocity to 75% of the multiplier
+    else if (words.length > 15) {
+        for (var i = 0; i < words.length; i++) {
+            multiplier = ((((words.length - i) / words.length) * 0.25) + 0.75) * multiplier //XXX Not sure this is right
+            currentVelocity = getCurrentVelocity(velocities, currentVelocity);
+            //console.log('m:', multiplier, 'v:', currentVelocity) //DEBUG
+            var velocity = calculateVelocity(words[i].length, currentVelocity) * multiplier;
+            velocities.push(velocity);
+        }
+    }
+    // Sentences between 1 and 15 words long just use the existing multiplier
+    else {
+        for (var i = 0; i < words.length; i++) {
+            currentVelocity = getCurrentVelocity(velocities, currentVelocity);
+            velocities.push(calculateVelocity(words[i].length, currentVelocity) * multiplier);
+            //console.log(words[i], velocities); //DEBUG
+        }
+    }
+    return velocities;
+}
+function gatherData(text) {
+    var wordlengths = [];
+    var velocities = [];
+    var paragraphs = text.split("\n");
+    paragraphs.pop(); // split() apparently adds an empty array element at the end
+
+    for (var i = 0; i < paragraphs.length; i++) {
+        var sentences = paragraphs[i].split(/[.!?]/);
+        if (sentences.length > 1)
+            sentences.pop(); // split() adds an empty element for multi-word sentences
+        //console.log(sentences); //DEBUG
+        // One-word paragraphs drop word velocity to zero
+        if (sentences.length == 1 && sentences[0].split(" ").length == 1) {
+            var word = sentences[0];
+            wordlengths.push(word.length);
+            velocities.push(0);
+            //console.log(word, wordlengths, velocities); //DEBUG
+        }
+        // One-sentence paragraphs drop word velocity by half
+        else if (sentences.length == 1) {
+            var words = getWords(sentences[0]);
+            var currentVelocity = getCurrentVelocity(velocities);
+            wordlengths = wordlengths.concat(getWordlengths(words));
+            velocities = velocities.concat(getWordVelocities(words, multiplier = 0.5), currentVelocity = currentVelocity);
+            //console.log(words, wordlengths, velocities); //DEBUG
+        }
+        // Paragraphs with more than 5 sentences drop velocity by half by the end of the paragraph
+        else if (sentences.length > 5) {
+            for (var j = 0; j < sentences.length; j++) {
+                var words = getWords(sentences[j]);
+                var currentVelocity = getCurrentVelocity(velocities);
+                var multiplier = (((sentences.length - j) / sentences.length) * 0.5) + 0.5;
+                wordlengths = wordlengths.concat(getWordlengths(words));
+                velocities = velocities.concat(getWordVelocities(words, multiplier = multiplier, currentVelocity = currentVelocity));
+                //console.log(words, wordlengths, velocities); //DEBUG
+            }
+        }
+        else {
+            for (var j = 0; j < sentences.length; j++) {
+                var words = getWords(sentences[j]);
+                var currentVelocity = getCurrentVelocity(velocities);
+                wordlengths = wordlengths.concat(getWordlengths(words));
+                velocities = velocities.concat(getWordVelocities(words, multiplier = 1.0, currentVelocity = currentVelocity));
+                //console.log(words, wordlengths, velocities); //DEBUG
+            }
+        }
+    }
+    return {
+        wordlengths: wordlengths,
+        velocities: velocities
+    }
+    //console.log(paragraphs); //DEBUG
+}
+        </script>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>Paste your text in here</h1>
+            <p>(Assuming Markdown syntax for the time being)</p>
+            <textarea id="source"># Test
+
+One.
+
+Test *test* test. This is a more-than8-characterword. This is a test---right here. Isn't it? It is! "Yeah."
+
+And now, I will totally write a sentence that has more than 15 words in it... for science. Incidentally, the previous sentence had more than 5 sentences.
+
+This is a one-sentence paragraph.
+</textarea>
+            <h1>Statistics</h1>
+            <div id="result-stats">
+                <ul>
+                    <li>Words:                   <span id="wordcount">     </span></li>
+                    <li>Average word length:     <span id="avg_wordlength"></span></li>
+                    <li>Minimum reader velocity: <span id="min_velocity">  </span></li>
+                    <li>Maximum reader velocity: <span id="max_velocity">  </span></li>
+                    <li>Average reader velocity: <span id="avg_velocity">  </span></li>
+                </ul>
+            </div>
+            <hr />
+            <div id="result-html"></div>
+            <hr />
+            <h1>Debugging</h1>
+            <pre><div id="debug"></div></pre>
+        </div>
+    </body>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    var md = window.markdownit({typographer: true});
+
+    $('#source').keyup(function () {
+        var html = md.render($(this).val());
+        $('#result-html').html(html);
+
+        var text = strip(html); // Get plain text XXX assumes Markdown -> HTML
+        var wordData = gatherData(text);
+        var stats = {
+            wordcount: wordData.wordlengths.length,
+            avgWordlength: (wordData.wordlengths.reduce(function(sum, x) {return sum + x}, 0)) / wordData.wordlengths.length,
+            minVelocity: Math.min.apply(null, wordData.velocities),
+            maxVelocity: Math.max.apply(null, wordData.velocities),
+            avgVelocity: (wordData.velocities.reduce(function(sum, x) {return sum + x;}, 0)) / wordData.velocities.length
+        };
+        $('#result-stats #wordcount').html(stats.wordcount);
+        $('#result-stats #avg_wordlength').html(stats.avgWordlength);
+        $('#result-stats #min_velocity').html(stats.minVelocity);
+        $('#result-stats #max_velocity').html(stats.maxVelocity);
+        $('#result-stats #avg_velocity').html(stats.avgVelocity);
+        //console.log(wordData.wordlengths, wordData.velocities, stats); //DEBUG
+        $('#debug').html(text); //DEBUG
+    });
+});
+</script>
+</html>
