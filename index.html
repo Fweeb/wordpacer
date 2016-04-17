@@ -86,13 +86,17 @@ function getWordVelocities(words, multiplier, currentVelocity) {
 function gatherData(text) {
     var wordlengths = [];
     var velocities = [];
+    var totalParagraphs = 0;
+    var totalSentences = 0;
     var paragraphs = text.split("\n");
     paragraphs.pop(); // split() apparently adds an empty array element at the end
+    totalParagraphs = paragraphs.length;
 
     for (var i = 0; i < paragraphs.length; i++) {
         var sentences = paragraphs[i].split(/[.!?]/);
         if (sentences.length > 1)
             sentences.pop(); // split() adds an empty element for multi-word sentences
+        totalSentences += sentences.length;
         //console.log(sentences); //DEBUG
         // One-word paragraphs drop word velocity to zero
         if (sentences.length == 1 && sentences[0].split(" ").length == 1) {
@@ -131,6 +135,8 @@ function gatherData(text) {
         }
     }
     return {
+        paragraphs: totalParagraphs,
+        sentences: totalSentences,
         wordlengths: wordlengths,
         velocities: velocities
     }
@@ -157,6 +163,8 @@ This is a one-sentence paragraph.
             <div id="result-stats">
                 <ul>
                     <li>Words:                   <span id="wordcount">     </span></li>
+                    <li>Sentences:               <span id="sentences">     </span></li>
+                    <li>Paragraphs:              <span id="paragraphs">    </span></li>
                     <li>Average word length:     <span id="avg_wordlength"></span></li>
                     <li>Minimum reader velocity: <span id="min_velocity">  </span></li>
                     <li>Maximum reader velocity: <span id="max_velocity">  </span></li>
@@ -189,6 +197,8 @@ $(document).ready(function () {
             avgVelocity: (wordData.velocities.reduce(function(sum, x) {return sum + x;}, 0)) / wordData.velocities.length
         };
         $('#result-stats #wordcount').html(stats.wordcount);
+        $('#result-stats #sentences').html(wordData.sentences);
+        $('#result-stats #paragraphs').html(wordData.paragraphs);
         $('#result-stats #avg_wordlength').html(stats.avgWordlength);
         $('#result-stats #min_velocity').html(stats.minVelocity);
         $('#result-stats #max_velocity').html(stats.maxVelocity);
