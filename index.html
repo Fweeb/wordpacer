@@ -8,6 +8,8 @@
         <script language="javascript" type="text/javascript" src="markdown-it-6.0.1.js"></script>
         <script language="javascript" type="text/javascript" src="jquery.jqplot.min.js"></script>
         <script language="javascript" type="text/javascript" src="plugins/jqplot.barRenderer.js"></script>
+        <script language="javascript" type="text/javascript" src="plugins/jqplot.categoryAxisRenderer.js"></script>
+        <script language="javascript" type="text/javascript" src="plugins/jqplot.pointLabels.js"></script>
         <link rel="stylesheet" type="text/css" href="jquery.jqplot.min.css" />
         <script type="text/javascript">
 function strip(html) {
@@ -98,6 +100,7 @@ function getWordVelocities(words, multiplier, currentVelocity) {
 function gatherData(text) {
     var wordlengths = [];
     var velocities = [];
+    var allWords = [];
     var wordticks = [];
     var currentWord = 1;
     var totalParagraphs = 0;
@@ -120,6 +123,7 @@ function gatherData(text) {
             wordlengths.push([word.length]);
             velocities.push(0);
             wordticks.push([currentWord]);
+            allWords.push([word]);
             currentWord++;
             //console.log(word, wordlengths, velocities); //DEBUG
         }
@@ -131,6 +135,7 @@ function gatherData(text) {
             wordlengths.push(getWordlengths(words));
             velocities = velocities.concat(getWordVelocities(words, multiplier = 0.5), currentVelocity = currentVelocity);
             wordticks.push(addWordticks(words, currentWord));
+            allWords.push(words);
             currentWord += wordticks[wordticks.length - 1].length;
             //console.log(words, wordlengths, velocities); //DEBUG
         }
@@ -144,6 +149,7 @@ function gatherData(text) {
                 wordlengths.push(getWordlengths(words));
                 velocities = velocities.concat(getWordVelocities(words, multiplier = multiplier, currentVelocity = currentVelocity));
                 wordticks.push(addWordticks(words, currentWord));
+                allWords.push(words);
                 currentWord += wordticks[wordticks.length - 1].length;
                 //console.log(words, wordlengths, velocities); //DEBUG
             }
@@ -156,6 +162,7 @@ function gatherData(text) {
                 wordlengths.push(getWordlengths(words));
                 velocities = velocities.concat(getWordVelocities(words, multiplier = 1.0, currentVelocity = currentVelocity));
                 wordticks.push(addWordticks(words, currentWord));
+                allWords.push(words);
                 currentWord += wordticks[wordticks.length - 1].length;
                 //console.log(words, wordlengths, velocities); //DEBUG
             }
@@ -167,6 +174,7 @@ function gatherData(text) {
         words: totalWords,
         wordlengths: wordlengths,
         velocities: velocities,
+        allWords: allWords,
         wordticks: wordticks
     }
     //console.log(paragraphs); //DEBUG
@@ -243,7 +251,7 @@ $(document).ready(function () {
         for (var i = 0; i < wordData.wordticks.length; i++) {
             wordCombo[i] = [];
             for (var j = 0; j < wordData.wordticks[i].length; j++) {
-                wordCombo[i][j] = [wordData.wordticks[i][j], wordData.wordlengths[i][j]];
+                wordCombo[i][j] = [wordData.wordticks[i][j], wordData.wordlengths[i][j], wordData.allWords[i][j]];
             }
         }
         //console.log(wordCombo) //DEBUG
