@@ -33,6 +33,14 @@ function getWordlengths(words) {
     }
     return wordlengths;
 }
+function addWordticks(words, currentWord) {
+    var ticks = [];
+    for (var i = 0; i < words.length; i++) {
+        ticks.push(currentWord);
+        currentWord++;
+    }
+    return ticks;
+}
 function getCurrentVelocity(velocities, currentVelocity = 0) {
     var currentVelocity;
     if (velocities.length > 0) {
@@ -90,8 +98,11 @@ function getWordVelocities(words, multiplier, currentVelocity) {
 function gatherData(text) {
     var wordlengths = [];
     var velocities = [];
+    var wordticks = [];
+    var currentWord = 1;
     var totalParagraphs = 0;
     var totalSentences = 0;
+    var totalWords = 0;
     var paragraphs = text.split("\n");
     paragraphs.pop(); // split() apparently adds an empty array element at the end
     totalParagraphs = paragraphs.length;
@@ -105,35 +116,47 @@ function gatherData(text) {
         // One-word paragraphs drop word velocity to zero
         if (sentences.length == 1 && sentences[0].split(" ").length == 1) {
             var word = sentences[0];
-            wordlengths.push(word.length);
+            totalWords++;
+            wordlengths.push([word.length]);
             velocities.push(0);
+            wordticks.push([currentWord]);
+            currentWord++;
             //console.log(word, wordlengths, velocities); //DEBUG
         }
         // One-sentence paragraphs drop word velocity by half
         else if (sentences.length == 1) {
             var words = getWords(sentences[0]);
+            totalWords += words.length;
             var currentVelocity = getCurrentVelocity(velocities);
-            wordlengths = wordlengths.concat(getWordlengths(words));
+            wordlengths.push(getWordlengths(words));
             velocities = velocities.concat(getWordVelocities(words, multiplier = 0.5), currentVelocity = currentVelocity);
+            wordticks.push(addWordticks(words, currentWord));
+            currentWord += wordticks[wordticks.length - 1].length;
             //console.log(words, wordlengths, velocities); //DEBUG
         }
         // Paragraphs with more than 5 sentences drop velocity by half by the end of the paragraph
         else if (sentences.length > 5) {
             for (var j = 0; j < sentences.length; j++) {
                 var words = getWords(sentences[j]);
+                totalWords += words.length;
                 var currentVelocity = getCurrentVelocity(velocities);
                 var multiplier = (((sentences.length - j) / sentences.length) * 0.5) + 0.5;
-                wordlengths = wordlengths.concat(getWordlengths(words));
+                wordlengths.push(getWordlengths(words));
                 velocities = velocities.concat(getWordVelocities(words, multiplier = multiplier, currentVelocity = currentVelocity));
+                wordticks.push(addWordticks(words, currentWord));
+                currentWord += wordticks[wordticks.length - 1].length;
                 //console.log(words, wordlengths, velocities); //DEBUG
             }
         }
         else {
             for (var j = 0; j < sentences.length; j++) {
                 var words = getWords(sentences[j]);
+                totalWords += words.length;
                 var currentVelocity = getCurrentVelocity(velocities);
-                wordlengths = wordlengths.concat(getWordlengths(words));
+                wordlengths.push(getWordlengths(words));
                 velocities = velocities.concat(getWordVelocities(words, multiplier = 1.0, currentVelocity = currentVelocity));
+                wordticks.push(addWordticks(words, currentWord));
+                currentWord += wordticks[wordticks.length - 1].length;
                 //console.log(words, wordlengths, velocities); //DEBUG
             }
         }
@@ -141,8 +164,10 @@ function gatherData(text) {
     return {
         paragraphs: totalParagraphs,
         sentences: totalSentences,
+        words: totalWords,
         wordlengths: wordlengths,
-        velocities: velocities
+        velocities: velocities,
+        wordticks: wordticks
     }
     //console.log(paragraphs); //DEBUG
 }
@@ -197,35 +222,47 @@ $(document).ready(function () {
         var text = strip(html); // Get plain text XXX assumes Markdown -> HTML
         wordData = gatherData(text);
         var stats = {
-            wordcount: wordData.wordlengths.length,
             avgWordlength: (wordData.wordlengths.reduce(function(sum, x) {return sum + x}, 0)) / wordData.wordlengths.length,
             minVelocity: Math.min.apply(null, wordData.velocities),
             maxVelocity: Math.max.apply(null, wordData.velocities),
             avgVelocity: (wordData.velocities.reduce(function(sum, x) {return sum + x;}, 0)) / wordData.velocities.length
         };
-        $('#result-stats #wordcount').html(stats.wordcount);
+        $('#result-stats #wordcount').html(wordData.words);
         $('#result-stats #sentences').html(wordData.sentences);
         $('#result-stats #paragraphs').html(wordData.paragraphs);
         $('#result-stats #avg_wordlength').html(stats.avgWordlength);
         $('#result-stats #min_velocity').html(stats.minVelocity);
         $('#result-stats #max_velocity').html(stats.maxVelocity);
         $('#result-stats #avg_velocity').html(stats.avgVelocity);
-        //console.log(wordData.wordlengths, wordData.velocities, stats); //DEBUG
+        //console.log(wordData.wordlengths, wordData.velocities, wordData.wordticks, stats); //DEBUG
 
-        var wordticks = Array.apply(null, Array(wordData.wordlengths.length)).map(function(_, i) {return i;});
+        var ticks = Array.apply(null, Array(wordData.words)).map(function(_, i) {return i;});
+        ticks.push(ticks.length);
+        ticks.push(ticks.length); //XXX not a mistake... definitely a hack
+        var wordCombo = [];
+        for (var i = 0; i < wordData.wordticks.length; i++) {
+            wordCombo[i] = [];
+            for (var j = 0; j < wordData.wordticks[i].length; j++) {
+                wordCombo[i][j] = [wordData.wordticks[i][j], wordData.wordlengths[i][j]];
+            }
+        }
+        //console.log(wordCombo) //DEBUG
         $.jqplot.config.enablePlugins = true;
-        var plot1 = $.jqplot('wordchart', [wordData.wordlengths], {
+        var plot1 = $.jqplot('wordchart', wordCombo, {
+            seriesColors: ['#99a', '#ccd'],
             seriesDefaults: {
                 renderer: $.jqplot.BarRenderer,
                 rendererOptions: {
-                    barWidth: 15
+                    barWidth: 15,
+                    barPadding: -15,
+                    barMargin: 0
                 },
                 pointLabels: { show: true },
             },
             axes: {
                 xaxis: {
                     renderer: $.jqplot.CategoryAxisRenderer,
-                    ticks: wordticks
+                    ticks: ticks
                 }
             },
             highlighter: { show: false }
