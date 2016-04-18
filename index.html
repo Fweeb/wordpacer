@@ -3,8 +3,12 @@
 <html>
     <head>
         <title>Word Pacer</title>
-        <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
-        <script type="text/javascript" src="markdown-it-6.0.1.js"></script>
+        <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="excanvas.js"></script><![endif]-->
+        <script language="javascript" type="text/javascript" src="jquery-2.2.3.min.js"></script>
+        <script language="javascript" type="text/javascript" src="markdown-it-6.0.1.js"></script>
+        <script language="javascript" type="text/javascript" src="jquery.jqplot.min.js"></script>
+        <script language="javascript" type="text/javascript" src="plugins/jqplot.barRenderer.js"></script>
+        <link rel="stylesheet" type="text/css" href="jquery.jqplot.min.css" />
         <script type="text/javascript">
 function strip(html) {
     var tmp = document.createElement("DIV");
@@ -172,6 +176,9 @@ This is a one-sentence paragraph.
                 </ul>
             </div>
             <hr />
+            <div id="info"></div>
+            <div id="wordchart"></div>
+            <hr />
             <div id="result-html"></div>
             <hr />
             <h1>Debugging</h1>
@@ -188,7 +195,7 @@ $(document).ready(function () {
         $('#result-html').html(html);
 
         var text = strip(html); // Get plain text XXX assumes Markdown -> HTML
-        var wordData = gatherData(text);
+        wordData = gatherData(text);
         var stats = {
             wordcount: wordData.wordlengths.length,
             avgWordlength: (wordData.wordlengths.reduce(function(sum, x) {return sum + x}, 0)) / wordData.wordlengths.length,
@@ -204,6 +211,32 @@ $(document).ready(function () {
         $('#result-stats #max_velocity').html(stats.maxVelocity);
         $('#result-stats #avg_velocity').html(stats.avgVelocity);
         //console.log(wordData.wordlengths, wordData.velocities, stats); //DEBUG
+
+        var wordticks = Array.apply(null, Array(wordData.wordlengths.length)).map(function(_, i) {return i;});
+        $.jqplot.config.enablePlugins = true;
+        var plot1 = $.jqplot('wordchart', [wordData.wordlengths], {
+            seriesDefaults: {
+                renderer: $.jqplot.BarRenderer,
+                rendererOptions: {
+                    barWidth: 15
+                },
+                pointLabels: { show: true },
+            },
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    ticks: wordticks
+                }
+            },
+            highlighter: { show: false }
+        });
+
+        $('#wordchart').bind('jqplotDataClick',
+            function (ev, seriesIndex, pointIndex, data) {
+                $('#info').html('series: '+seriesIndex+', point: '+pointIndex+', data: '+data);
+            }
+        );
+        plot1.replot({ resetAxes: true });
         $('#debug').html(text); //DEBUG
     });
 });
