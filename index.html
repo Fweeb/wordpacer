@@ -32,8 +32,8 @@ This is a one-sentence paragraph.
             <div id="result-stats">
                 <ul>
                     <li>Words:                   <span id="wordcount">     </span></li>
-                    <li>Sentences:               <span id="sentences">     </span></li>
-                    <li>Paragraphs:              <span id="paragraphs">    </span></li>
+                    <li>Sentences:               <span id="sentcount">     </span></li>
+                    <li>Paragraphs:              <span id="paracount">    </span></li>
                     <li>Average word length:     <span id="avg_wordlength"></span></li>
                     <li>Minimum reader velocity: <span id="min_velocity">  </span></li>
                     <li>Maximum reader velocity: <span id="max_velocity">  </span></li>
@@ -67,16 +67,16 @@ $(document).ready(function () {
             maxVelocity: Math.max.apply(null, wordData.velocities),
             avgVelocity: (wordData.velocities.reduce(function(sum, x) {return sum + x;}, 0)) / wordData.velocities.length
         };
-        $('#result-stats #wordcount').html(wordData.words);
-        $('#result-stats #sentences').html(wordData.sentences);
-        $('#result-stats #paragraphs').html(wordData.paragraphs);
+        $('#result-stats #wordcount').html(wordData.wordcount);
+        $('#result-stats #sentcount').html(wordData.sentcount);
+        $('#result-stats #paracount').html(wordData.paracount);
         $('#result-stats #avg_wordlength').html(stats.avgWordlength);
         $('#result-stats #min_velocity').html(stats.minVelocity);
         $('#result-stats #max_velocity').html(stats.maxVelocity);
         $('#result-stats #avg_velocity').html(stats.avgVelocity);
         //console.log(wordData.wordlengths, wordData.velocities, wordData.wordticks, stats); //DEBUG
 
-        var ticks = Array.apply(null, Array(wordData.words)).map(function(_, i) {return i;});
+        var ticks = Array.apply(null, Array(wordData.wordcount)).map(function(_, i) {return i;});
         ticks.push(ticks.length);
         ticks.push(ticks.length); //XXX not a mistake... definitely a hack
         var wordCombo = [];
