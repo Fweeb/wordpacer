@@ -84,7 +84,7 @@ function getWordVelocities(words, multiplier, currentVelocity) {
     }
     return velocities;
 }
-function getSentenceData(sentence, data, multiplier) {
+function getSentenceData(sentence, data, currentWord, multiplier) {
     var words = getWords(sentence);
     data.wordcount += words.length;
     var currentVelocity = getCurrentVelocity(data.velocities);
@@ -130,7 +130,7 @@ function gatherData(text) {
         }
         // One-sentence paragraphs drop word velocity by half
         else if (sentences.length == 1) {
-            data = getSentenceData(sentences[0], data, multiplier = 0.5);
+            data = getSentenceData(sentences[0], data, currentWord, multiplier = 0.5);
             currentWord += data.wordticks[data.wordticks.length - 1].length;
             //console.log(words, wordlengths, velocities); //DEBUG
         }
@@ -138,14 +138,14 @@ function gatherData(text) {
         else if (sentences.length > 5) {
             for (var j = 0; j < sentences.length; j++) {
                 var multiplier = (((sentences.length - j) / sentences.length) * 0.5) + 0.5;
-                data = getSentenceData(sentences[j], data, multiplier = multiplier);
+                data = getSentenceData(sentences[j], data, currentWord, multiplier = multiplier);
                 currentWord += data.wordticks[data.wordticks.length - 1].length;
                 //console.log(words, wordlengths, velocities); //DEBUG
             }
         }
         else {
             for (var j = 0; j < sentences.length; j++) {
-                data = getSentenceData(sentences[j], data, multiplier = 1.0);
+                data = getSentenceData(sentences[j], data, currentWord, multiplier = 1.0);
                 currentWord += data.wordticks[data.wordticks.length - 1].length;
                 //console.log(words, wordlengths, velocities); //DEBUG
             }
