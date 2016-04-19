@@ -84,6 +84,16 @@ function getWordVelocities(words, multiplier, currentVelocity) {
     }
     return velocities;
 }
+function getSentenceData(sentence, data, multiplier) {
+    var words = getWords(sentence);
+    data.wordcount += words.length;
+    var currentVelocity = getCurrentVelocity(data.velocities);
+    data.wordlengths.push(getWordlengths(words));
+    data.velocities = data.velocities.concat(getWordVelocities(words, multiplier = multiplier, currentVelocity = currentVelocity));
+    data.wordticks.push(addWordticks(words, currentWord));
+    data.allWords.push(words);
+    return data;
+}
 function gatherData(text) {
     data = {
         paracount: 0,
@@ -120,40 +130,22 @@ function gatherData(text) {
         }
         // One-sentence paragraphs drop word velocity by half
         else if (sentences.length == 1) {
-            var words = getWords(sentences[0]);
-            data.wordcount += words.length;
-            var currentVelocity = getCurrentVelocity(data.velocities);
-            data.wordlengths.push(getWordlengths(words));
-            data.velocities = data.velocities.concat(getWordVelocities(words, multiplier = 0.5), currentVelocity = currentVelocity);
-            data.wordticks.push(addWordticks(words, currentWord));
-            data.allWords.push(words);
+            data = getSentenceData(sentences[0], data, multiplier = 0.5);
             currentWord += data.wordticks[data.wordticks.length - 1].length;
             //console.log(words, wordlengths, velocities); //DEBUG
         }
         // Paragraphs with more than 5 sentences drop velocity by half by the end of the paragraph
         else if (sentences.length > 5) {
             for (var j = 0; j < sentences.length; j++) {
-                var words = getWords(sentences[j]);
-                data.wordcount += words.length;
-                var currentVelocity = getCurrentVelocity(velocities);
                 var multiplier = (((sentences.length - j) / sentences.length) * 0.5) + 0.5;
-                data.wordlengths.push(getWordlengths(words));
-                data.velocities = data.velocities.concat(getWordVelocities(words, multiplier = multiplier, currentVelocity = currentVelocity));
-                data.wordticks.push(addWordticks(words, currentWord));
-                data.allWords.push(words);
+                data = getSentenceData(sentences[j], data, multiplier = multiplier);
                 currentWord += data.wordticks[data.wordticks.length - 1].length;
                 //console.log(words, wordlengths, velocities); //DEBUG
             }
         }
         else {
             for (var j = 0; j < sentences.length; j++) {
-                var words = getWords(sentences[j]);
-                data.wordcount += words.length;
-                var currentVelocity = getCurrentVelocity(data.velocities);
-                data.wordlengths.push(getWordlengths(words));
-                data.velocities = data.velocities.concat(getWordVelocities(words, multiplier = 1.0, currentVelocity = currentVelocity));
-                data.wordticks.push(addWordticks(words, currentWord));
-                data.allWords.push(words);
+                data = getSentenceData(sentences[j], data, multiplier = 1.0);
                 currentWord += data.wordticks[data.wordticks.length - 1].length;
                 //console.log(words, wordlengths, velocities); //DEBUG
             }
