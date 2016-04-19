@@ -76,9 +76,7 @@ $(document).ready(function () {
         $('#result-stats #avg_velocity').html(stats.avgVelocity);
         //console.log(wordData.wordlengths, wordData.velocities, wordData.wordticks, stats); //DEBUG
 
-        var ticks = Array.apply(null, Array(wordData.wordcount)).map(function(_, i) {return i;});
-        ticks.push(ticks.length);
-        ticks.push(ticks.length); //XXX not a mistake... definitely a hack
+        var ticks = Array.apply(null, Array(wordData.wordcount + 2)).map(function(_, i) {return i;}); // the +2 is needed
         var wordCombo = [];
         for (var i = 0; i < wordData.wordticks.length; i++) {
             wordCombo[i] = [];
