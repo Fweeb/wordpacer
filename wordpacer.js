@@ -148,7 +148,7 @@ function gatherData(text) {
         else {
             for (var j = 0; j < sentences.length; j++) {
                 var words = getWords(sentences[j]);
-                wordcount += words.length;
+                data.wordcount += words.length;
                 var currentVelocity = getCurrentVelocity(data.velocities);
                 data.wordlengths.push(getWordlengths(words));
                 data.velocities = data.velocities.concat(getWordVelocities(words, multiplier = 1.0, currentVelocity = currentVelocity));
