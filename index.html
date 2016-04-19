@@ -78,6 +78,7 @@ $(document).ready(function () {
         //console.log(wordData.wordlengths, wordData.velocities, wordData.wordticks, stats); //DEBUG
 
         var ticks = Array.apply(null, Array(wordData.wordcount + 2)).map(function(_, i) {return i;}); // the +2 is needed
+        ticks.splice(0, 1); // Remove from tick series XXX (necessary?)
         var wordCombo = [];
         for (var i = 0; i < wordData.wordticks.length; i++) {
             wordCombo[i] = [];
