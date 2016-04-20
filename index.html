@@ -77,18 +77,31 @@ $(document).ready(function () {
         $('#result-stats #min_velocity').html(stats.minVelocity);
         $('#result-stats #max_velocity').html(stats.maxVelocity);
         $('#result-stats #avg_velocity').html(stats.avgVelocity);
-        //console.log(wordData, stats); //DEBUG
+        //console.log(wordData.velocities, stats); //DEBUG
 
         var ticks = Array.apply(null, Array(wordData.wordcount + 2)).map(function(_, i) {return i;}); // the +2 is needed
         var wordCombo = [];
+        var velocityCombo = [];
+        velocityCombo.push([0,0]);
         for (var i = 0; i < wordData.wordticks.length; i++) {
             wordCombo[i] = [];
             for (var j = 0; j < wordData.wordticks[i].length; j++) {
                 wordCombo[i][j] = [wordData.wordticks[i][j], wordData.wordlengths[i][j], wordData.allWords[i][j]];
+                velocityCombo.push([wordData.wordticks[i][j], wordData.velocities[i+j]]);
             }
         }
+        wordCombo.push(velocityCombo);
+        var plotSeries = [];
+        for (var i = 0; i < wordCombo.length - 1; i++) {
+            plotSeries.push({});
+        }
+        plotSeries.push({
+            renderer: $.jqplot.LineRenderer,
+            color: '#f00',
+            yaxis: 'y2axis'
+        });
         var paragraphRectangles = makeParagraphRectangles(wordData.paragraphStarts);
-        console.log(paragraphRectangles) //DEBUG
+        console.log(wordCombo) //DEBUG
         $.jqplot.config.enablePlugins = true;
         var plot1 = $.jqplot('wordchart', wordCombo, {
             // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
@@ -104,10 +117,22 @@ $(document).ready(function () {
                 },
                 pointLabels: { show: true },
             },
+            series: plotSeries,
             axes: {
                 xaxis: {
                     //renderer: $.jqplot.CategoryAxisRenderer,
                     ticks: ticks
+                },
+                yaxis: {
+                    rendererOptions: {
+                        forceTickAt0: true
+                    }
+                },
+                y2axis: {
+                    rendererOptions: {
+                        alignTicks: true,
+                        forceTickAt0: true
+                    }
                 }
             },
             canvasOverlay: {
@@ -116,6 +141,8 @@ $(document).ready(function () {
             },
             highlighter: { show: false }
         });
+        //plot1.series[plot1.series.length - 1].renderer = $.jqplot.LineRenderer();
+        //console.log(plot1.series[plot1.series.length - 1]); //DEBUG
 
         $('#wordchart').bind('jqplotDataClick',
             function (ev, seriesIndex, pointIndex, data) {
