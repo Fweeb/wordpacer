@@ -1,4 +1,19 @@
-
+/*
+ * Rules for calculating velocity (tentative):
+ *   - Average reader speed is 200 WPM
+ *   - Word influence: 
+ *      - Words shorter than 5 characters increase velocity by the length of the word (should be inverse?)
+ *      - Words between 4 and 8 characters long maintain current velocity
+ *      - Words greater than 7 characters lose velocity for every character over 8
+ *   - Sentence influence:
+ *      - One-word sentences set velocity to 100 WPM
+ *      - Sentences with between 1 and 15 characters long maintain the paragraph multiplier
+ *      - Sentences greater than 15 characters drop velocity to 75% of the paragraph by the end of the sentence
+ *   - Paragraph influence:
+ *      - One word, one-sentence paragraphs set velocity to 60 WPM (would half be better?)
+ *      - Paragraphs with between 1 an 5 sentences have a speed multiplier of 1.0 (should be >1?)
+ *      - Paragraphs with more than 5 sentences drop velocity by half by the end of the paragraph
+ */
 function strip(html) {
     var tmp = document.createElement("DIV");
     tmp.innerHTML = html
