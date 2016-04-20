@@ -102,11 +102,12 @@ function gatherData(text) {
         wordlengths: [],
         velocities: [],
         allWords: [],
-        wordticks: []
+        wordticks: [],
+        paragraphStarts: []
     }
 
-
     var currentWord = 1;
+    data.paragraphStarts.push(currentWord);
     var paragraphs = text.split("\n");
     paragraphs.pop(); // split() apparently adds an empty array element at the end
     data.paracount = paragraphs.length;
@@ -150,7 +151,20 @@ function gatherData(text) {
                 //console.log(words, wordlengths, velocities); //DEBUG
             }
         }
+        data.paragraphStarts.push(currentWord);
     }
     return data;
     //console.log(paragraphs); //DEBUG
+}
+function makeParagraphRectangles(paragraphStarts) {
+    var rectangles = []
+    for (var i = 0; i < paragraphStarts.length - 1; i++) {
+        rectangles.push({ rectangle: {
+            xmin: paragraphStarts[i] - 0.5, xmax: paragraphStarts[i + 1] - 0.5,
+            xminOffset: "0px", xmaxOffset: "0px", yminOffset: "0px", ymaxOffset: "0px",
+            color: ((i % 2 == 0) ? "rgba(200, 200, 0, 0.3)" : "rgba(0, 200, 100, 0.3"),
+            showTooltip: true, tooltipFormatString: "Paragraph " + (i + 1)
+        }});
+    }
+    return rectangles;
 }
