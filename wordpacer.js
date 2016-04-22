@@ -1,6 +1,6 @@
 /*
  * Rules for calculating velocity (tentative):
- *   - Average reader speed is 200 WPM
+ *   - Average reader speed is 200 WPM (roughly 1000 characters/minute, or 16.6 characters/second)
  *   - Word influence: 
  *      - Words shorter than 5 characters increase velocity by the length of the word (should be inverse?)
  *      - Words between 4 and 8 characters long maintain current velocity
@@ -45,7 +45,7 @@ function addWordticks(words, currentWord) {
     }
     return ticks;
 }
-function getCurrentVelocity(velocities, currentVelocity = 0) {
+function getCurrentVelocity(velocities, currentVelocity) {
     var currentVelocity;
     if (velocities.length > 0) {
         currentVelocity = velocities[velocities.length - 1];
@@ -57,26 +57,29 @@ function getCurrentVelocity(velocities, currentVelocity = 0) {
 }
 function calculateVelocity(wordlength, currentVelocity) {
     var velocity;
+    if (currentVelocity == 0) {
+        currentVelocity = 200; // Baseline reader velocity at 200 WPM at the start
+    }
     // Less than 5 letters = velocity increases by letter count
     if (wordlength < 5) {
-        velocity = currentVelocity + wordlength;
+        velocity = currentVelocity + (16.6 - wordlength);
     }
     // Words 4-8 letters long maintain velocity
-    if (wordlength > 4 && wordlength < 8) {
+    else if (wordlength > 4 && wordlength < 16) {
         velocity = currentVelocity;
     }
-    // Words greater than 7 letters long lose velocity for each letter over 8
+    // Words greater than 16 letters long lose velocity for each letter over 17
     else {
-        velocity = currentVelocity - wordlength + 8;
+        velocity = currentVelocity - wordlength + 17;
     }
     return velocity;
 }
 function getWordVelocities(words, multiplier, currentVelocity) {
     var velocities = [];
 
-    // One-word sentences set velocity to the length of the word
+    // One-word sentences set velocity to 100 WPM
     if (words.length == 1) {
-        velocities.push(words[0].length);
+        velocities.push(100);
         //console.log(words, velocities); //DEBUG
     }
     // Sentences with more than 15 words drop velocity to 75% of the multiplier
@@ -84,9 +87,8 @@ function getWordVelocities(words, multiplier, currentVelocity) {
         for (var i = 0; i < words.length; i++) {
             multiplier = ((((words.length - i) / words.length) * 0.25) + 0.75) * multiplier //XXX Not sure this is right
             currentVelocity = getCurrentVelocity(velocities, currentVelocity);
-            //console.log('m:', multiplier, 'v:', currentVelocity) //DEBUG
-            var velocity = calculateVelocity(words[i].length, currentVelocity) * multiplier;
-            velocities.push(velocity);
+            //console.log('w:', words[i], 'm:', multiplier, 'v:', currentVelocity) //DEBUG
+            velocities.push(calculateVelocity(words[i].length, currentVelocity) * multiplier);
         }
     }
     // Sentences between 1 and 15 words long just use the existing multiplier
@@ -94,7 +96,7 @@ function getWordVelocities(words, multiplier, currentVelocity) {
         for (var i = 0; i < words.length; i++) {
             currentVelocity = getCurrentVelocity(velocities, currentVelocity);
             velocities.push(calculateVelocity(words[i].length, currentVelocity) * multiplier);
-            //console.log(words[i], velocities); //DEBUG
+            //console.log('w:', words[i], 'm:', multiplier, 'v2:', currentVelocity, velocities) //DEBUG
         }
     }
     return velocities;
@@ -107,6 +109,7 @@ function getSentenceData(sentence, data, currentWord, multiplier) {
     data.velocities = data.velocities.concat(getWordVelocities(words, multiplier = multiplier, currentVelocity = currentVelocity));
     data.wordticks.push(addWordticks(words, currentWord));
     data.allWords.push(words);
+    //console.log(data.velocities); //DEBUG
     return data;
 }
 function gatherData(text) {
@@ -133,12 +136,12 @@ function gatherData(text) {
             sentences.pop(); // split() adds an empty element for multi-word sentences
         data.sentcount += sentences.length;
         //console.log(sentences); //DEBUG
-        // One-word paragraphs drop word velocity to zero
+        // One word, one-sentence paragraphs set velocity to 60 WPM
         if (sentences.length == 1 && sentences[0].split(" ").length == 1) {
             var word = sentences[0];
             data.wordcount++;
             data.wordlengths.push([word.length]);
-            data.velocities.push(0);
+            data.velocities.push(60);
             data.wordticks.push([currentWord]);
             data.allWords.push([word]);
             currentWord++;
@@ -156,7 +159,7 @@ function gatherData(text) {
                 var multiplier = (((sentences.length - j) / sentences.length) * 0.5) + 0.5;
                 data = getSentenceData(sentences[j], data, currentWord, multiplier = multiplier);
                 currentWord += data.wordticks[data.wordticks.length - 1].length;
-                //console.log(words, wordlengths, velocities); //DEBUG
+                //console.log(data.velocities); //DEBUG
             }
         }
         else {

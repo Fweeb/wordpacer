@@ -77,7 +77,7 @@ $(document).ready(function () {
         $('#result-stats #min_velocity').html(stats.minVelocity);
         $('#result-stats #max_velocity').html(stats.maxVelocity);
         $('#result-stats #avg_velocity').html(stats.avgVelocity);
-        //console.log(wordData.velocities, stats); //DEBUG
+        //console.log(wordData.velocities); //DEBUG
 
         var ticks = Array.apply(null, Array(wordData.wordcount + 2)).map(function(_, i) {return i;}); // the +2 is needed
         var wordCombo = [];
@@ -87,9 +87,11 @@ $(document).ready(function () {
             wordCombo[i] = [];
             for (var j = 0; j < wordData.wordticks[i].length; j++) {
                 wordCombo[i][j] = [wordData.wordticks[i][j], wordData.wordlengths[i][j], wordData.allWords[i][j]];
-                velocityCombo.push([wordData.wordticks[i][j], wordData.velocities[i+j]]);
+                velocityCombo.push([wordData.wordticks[i][j], wordData.velocities[wordData.wordticks[i][j]-1]]);
+                //console.log('i:',i,'j:',j,'wordcombo:',wordCombo[i][j]); //DEBUG
             }
         }
+        //console.log(velocityCombo); //DEBUG
         wordCombo.push(velocityCombo);
         var plotSeries = [];
         for (var i = 0; i < wordCombo.length - 1; i++) {
@@ -101,7 +103,7 @@ $(document).ready(function () {
             yaxis: 'y2axis'
         });
         var paragraphRectangles = makeParagraphRectangles(wordData.paragraphStarts);
-        console.log(wordCombo) //DEBUG
+        //console.log(wordCombo) //DEBUG
         $.jqplot.config.enablePlugins = true;
         var plot1 = $.jqplot('wordchart', wordCombo, {
             // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
