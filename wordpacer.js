@@ -46,17 +46,21 @@ function addWordticks(words, currentWord) {
     return ticks;
 }
 function getCurrentVelocity(velocities, currentVelocity) {
-    var currentVelocity;
     if (velocities.length > 0) {
         currentVelocity = velocities[velocities.length - 1];
+    }
+    else if (currentVelocity == undefined) {
+        currentVelocity = 0;
     }
     else {
         currentVelocity = currentVelocity;
     }
+    //console.log(currentVelocity); //DEBUG
     return currentVelocity;
 }
 function calculateVelocity(wordlength, currentVelocity) {
     var velocity;
+
     if (currentVelocity == 0) {
         currentVelocity = 200; // Baseline reader velocity at 200 WPM at the start
     }
@@ -72,6 +76,7 @@ function calculateVelocity(wordlength, currentVelocity) {
     else {
         velocity = currentVelocity - wordlength + 17;
     }
+    //velocity = currentVelocity + (1 / (currentVelocity)); // Harmonic series
     return velocity;
 }
 function getWordVelocities(words, multiplier, currentVelocity) {
@@ -98,7 +103,7 @@ function getWordVelocities(words, multiplier, currentVelocity) {
             velocities.push(calculateVelocity(words[i].length, currentVelocity) * multiplier);
             //console.log('w:', words[i], 'm:', multiplier, 'v2:', currentVelocity, velocities) //DEBUG
         }
-    }
+   }
     return velocities;
 }
 function getSentenceData(sentence, data, currentWord, multiplier) {
@@ -153,10 +158,10 @@ function gatherData(text) {
             currentWord += data.wordticks[data.wordticks.length - 1].length;
             //console.log(words, wordlengths, velocities); //DEBUG
         }
-        // Paragraphs with more than 5 sentences drop velocity by half by the end of the paragraph
+        // Paragraphs with more than 5 sentences drop velocity by 25% by the end of the paragraph
         else if (sentences.length > 5) {
             for (var j = 0; j < sentences.length; j++) {
-                var multiplier = (((sentences.length - j) / sentences.length) * 0.5) + 0.5;
+                var multiplier = (((sentences.length - j) / sentences.length) * 0.25) + 0.75;
                 data = getSentenceData(sentences[j], data, currentWord, multiplier = multiplier);
                 currentWord += data.wordticks[data.wordticks.length - 1].length;
                 //console.log(data.velocities); //DEBUG
@@ -166,7 +171,7 @@ function gatherData(text) {
             for (var j = 0; j < sentences.length; j++) {
                 data = getSentenceData(sentences[j], data, currentWord, multiplier = 1.0);
                 currentWord += data.wordticks[data.wordticks.length - 1].length;
-                //console.log(words, wordlengths, velocities); //DEBUG
+                //console.log(data.allWords, data.wordlengths, data.velocities); //DEBUG
             }
         }
         data.paragraphStarts.push(currentWord);
