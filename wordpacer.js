@@ -64,19 +64,28 @@ function calculateVelocity(wordlength, currentVelocity) {
     if (currentVelocity == 0) {
         currentVelocity = 200; // Baseline reader velocity at 200 WPM at the start
     }
-    // Less than 5 letters = velocity increases by letter count
+    // Less than 5 letters = velocity increases by 20%
     if (wordlength < 5) {
-        velocity = currentVelocity + (16.6 - wordlength);
+        multiplier = (200 / currentVelocity) + 0.20;
     }
-    // Words 4-8 letters long maintain velocity
-    else if (wordlength > 4 && wordlength < 16) {
-        velocity = currentVelocity;
+    // Words 4-8 letters long maintain velocity (aim for 200 WPM)
+    else if (wordlength > 4 && wordlength < 9) {
+        multiplier = 200 / currentVelocity;
     }
-    // Words greater than 16 letters long lose velocity for each letter over 17
+    // Words greater than 16 letters long lose 1% velocity for each letter over 8
     else {
-        velocity = currentVelocity - wordlength + 17;
+        multiplier = (200 / currentVelocity) - ((wordlength - 8) / 100);
     }
-    //velocity = currentVelocity + (1 / (currentVelocity)); // Harmonic series
+    if (currentVelocity != 200) {
+        velocity = currentVelocity * multiplier;
+        console.log('current:', currentVelocity,
+                    'add:', 200 / currentVelocity,
+                    'multiplier:', multiplier,
+                    'velocity:', velocity); //DEBUG
+    }
+    else {
+        velocity = currentVelocity * multiplier;
+    }
     return velocity;
 }
 function getWordVelocities(words, multiplier, currentVelocity) {
@@ -142,7 +151,7 @@ function gatherData(text) {
         data.sentcount += sentences.length;
         //console.log(sentences); //DEBUG
         // One word, one-sentence paragraphs set velocity to 60 WPM
-        if (sentences.length == 1 && sentences[0].split(" ").length == 1) {
+/*        if (sentences.length == 1 && sentences[0].split(" ").length == 1) {
             var word = sentences[0];
             data.wordcount++;
             data.wordlengths.push([word.length]);
@@ -167,13 +176,13 @@ function gatherData(text) {
                 //console.log(data.velocities); //DEBUG
             }
         }
-        else {
+        else {*/
             for (var j = 0; j < sentences.length; j++) {
                 data = getSentenceData(sentences[j], data, currentWord, multiplier = 1.0);
                 currentWord += data.wordticks[data.wordticks.length - 1].length;
                 //console.log(data.allWords, data.wordlengths, data.velocities); //DEBUG
             }
-        }
+        /*}*/
         data.paragraphStarts.push(currentWord);
     }
     return data;
