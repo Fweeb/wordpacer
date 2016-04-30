@@ -151,12 +151,12 @@ function gatherData(text) {
             sentences.pop(); // split() adds an empty element for multi-word sentences
         data.sentcount += sentences.length;
         //console.log(sentences); //DEBUG
-        // One word, one-sentence paragraphs set velocity to 60 WPM
-/*        if (sentences.length == 1 && sentences[0].split(" ").length == 1) {
+        // One word, one-sentence paragraphs set velocity to 100 WPM
+        if (sentences.length == 1 && sentences[0].split(" ").length == 1) {
             var word = sentences[0];
             data.wordcount++;
             data.wordlengths.push([word.length]);
-            data.velocities.push(60);
+            data.velocities.push(100);
             data.wordticks.push([currentWord]);
             data.allWords.push([word]);
             currentWord++;
@@ -177,13 +177,13 @@ function gatherData(text) {
                 //console.log(data.velocities); //DEBUG
             }
         }
-        else {*/
+        else {
             for (var j = 0; j < sentences.length; j++) {
                 data = getSentenceData(sentences[j], data, currentWord, multiplier = 1.0);
                 currentWord += data.wordticks[data.wordticks.length - 1].length;
                 //console.log(data.allWords, data.wordlengths, data.velocities); //DEBUG
             }
-        /*}*/
+        }
         data.paragraphStarts.push(currentWord);
     }
     return data;
