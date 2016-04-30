@@ -91,18 +91,19 @@ function calculateVelocity(wordlength, currentVelocity) {
 function getWordVelocities(words, multiplier, currentVelocity) {
     var velocities = [];
 
-    // One-word sentences set velocity to 100 WPM
+    // One-word sentences set velocity to 150 WPM
     if (words.length == 1) {
-        velocities.push(100);
+        velocities.push(150);
         //console.log(words, velocities); //DEBUG
     }
     // Sentences with more than 15 words drop velocity to 75% of the multiplier
     else if (words.length > 15) {
         for (var i = 0; i < words.length; i++) {
-            multiplier = ((((words.length - i) / words.length) * 0.25) + 0.75) * multiplier //XXX Not sure this is right
+            var sentenceMultiplier = ((((words.length - i) / words.length) * 0.25) + 0.75) * multiplier
+            console.log('sentence multiplier:', sentenceMultiplier); //DEBUG
             currentVelocity = getCurrentVelocity(velocities, currentVelocity);
             //console.log('w:', words[i], 'm:', multiplier, 'v:', currentVelocity) //DEBUG
-            velocities.push(calculateVelocity(words[i].length, currentVelocity) * multiplier);
+            velocities.push(calculateVelocity(words[i].length, currentVelocity) * sentenceMultiplier);
         }
     }
     // Sentences between 1 and 15 words long just use the existing multiplier
