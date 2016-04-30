@@ -105,6 +105,7 @@ $(document).ready(function () {
         var paragraphRectangles = makeParagraphRectangles(wordData.paragraphStarts);
         //console.log(wordCombo) //DEBUG
         $.jqplot.config.enablePlugins = true;
+        console.log($('#wordchart').width() / wordData.wordcount); //DEBUG
         var plot1 = $.jqplot('wordchart', wordCombo, {
             // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
             animate: !$.jqplot.use_excanvas,
@@ -113,9 +114,9 @@ $(document).ready(function () {
             seriesDefaults: {
                 renderer: $.jqplot.BarRenderer,
                 rendererOptions: {
-                    barWidth: 15,
-                    barPadding: -15,
-                    barMargin: 0
+                    barWidth: $('#wordchart').width() / wordData.wordcount,
+                    barPadding: - $('#wordchart').width() / wordData.wordcount,
+                    barMargin: 0 
                 },
                 pointLabels: { show: true },
             },
