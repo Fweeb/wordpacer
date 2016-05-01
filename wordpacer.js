@@ -78,10 +78,10 @@ function calculateVelocity(wordlength, currentVelocity) {
     }
     if (currentVelocity != 200) {
         velocity = currentVelocity * multiplier;
-        console.log('current:', currentVelocity,
+        /*console.log('current:', currentVelocity,
                     'add:', 200 / currentVelocity,
                     'multiplier:', multiplier,
-                    'velocity:', velocity); //DEBUG
+                    'velocity:', velocity); //DEBUG */
     }
     else {
         velocity = currentVelocity * multiplier;
@@ -100,7 +100,7 @@ function getWordVelocities(words, multiplier, currentVelocity) {
     else if (words.length > 15) {
         for (var i = 0; i < words.length; i++) {
             var sentenceMultiplier = ((((words.length - i) / words.length) * 0.25) + 0.75) * multiplier
-            console.log('sentence multiplier:', sentenceMultiplier); //DEBUG
+            //console.log('sentence multiplier:', sentenceMultiplier); //DEBUG
             currentVelocity = getCurrentVelocity(velocities, currentVelocity);
             //console.log('w:', words[i], 'm:', multiplier, 'v:', currentVelocity) //DEBUG
             velocities.push(calculateVelocity(words[i].length, currentVelocity) * sentenceMultiplier);

@@ -64,12 +64,20 @@ $(document).ready(function () {
 
         var text = strip(html); // Get plain text XXX assumes Markdown -> HTML
         wordData = gatherData(text);
+
         var stats = {
-            avgWordlength: (wordData.wordlengths.reduce(function(sum, x) {return sum + x}, 0)) / wordData.wordlengths.length,
+            avgWordlength: 0,
             minVelocity: Math.min.apply(null, wordData.velocities),
             maxVelocity: Math.max.apply(null, wordData.velocities),
             avgVelocity: (wordData.velocities.reduce(function(sum, x) {return sum + x;}, 0)) / wordData.velocities.length
         };
+        var allLetters = 0;
+        for (var i = 0; i < wordData.wordlengths.length; i++) {
+            for (var j = 0; j < wordData.wordlengths[i].length; j++) {
+                allLetters += wordData.wordlengths[i][j];
+            }
+        }
+        stats.avgWordlength = allLetters / wordData.wordcount;
         $('#result-stats #wordcount').html(wordData.wordcount);
         $('#result-stats #sentcount').html(wordData.sentcount);
         $('#result-stats #paracount').html(wordData.paracount);
@@ -77,7 +85,7 @@ $(document).ready(function () {
         $('#result-stats #min_velocity').html(stats.minVelocity);
         $('#result-stats #max_velocity').html(stats.maxVelocity);
         $('#result-stats #avg_velocity').html(stats.avgVelocity);
-        //console.log(wordData.velocities); //DEBUG
+        //console.log(wordData.wordlengths, stats.avgWordlength); //DEBUG
 
         var ticks = Array.apply(null, Array(wordData.wordcount + 2)).map(function(_, i) {return i;}); // the +2 is needed
         var wordCombo = [];
@@ -105,7 +113,7 @@ $(document).ready(function () {
         var paragraphRectangles = makeParagraphRectangles(wordData.paragraphStarts);
         //console.log(wordCombo) //DEBUG
         $.jqplot.config.enablePlugins = true;
-        console.log($('#wordchart').width() / wordData.wordcount); //DEBUG
+        //console.log($('#wordchart').width() / wordData.wordcount); //DEBUG
         var plot1 = $.jqplot('wordchart', wordCombo, {
             // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
             animate: !$.jqplot.use_excanvas,
