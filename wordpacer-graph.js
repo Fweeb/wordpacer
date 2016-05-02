@@ -100,7 +100,9 @@ $(document).ready(function () {
 
         $('#wordchart').bind('jqplotDataClick',
             function (ev, seriesIndex, pointIndex, data) {
-                $('#info').html('series: '+seriesIndex+', point: '+pointIndex+', data: '+data);
+                seriesIndex++;
+                pointIndex++;
+                $('#info').html('sentence: '+seriesIndex+', word: '+pointIndex+' ('+data[2]+'), word length: '+data[1]); //XXX only works right for the bar graph right now
             }
         );
         plot1.replot({ resetAxes: true });
