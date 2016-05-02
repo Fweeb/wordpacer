@@ -67,7 +67,7 @@ $(document).ready(function () {
                 rendererOptions: {
                     barWidth: $('#wordchart').width() / wordData.wordcount,
                     barPadding: - $('#wordchart').width() / wordData.wordcount,
-                    barMargin: 0 
+                    barMargin: 0
                 },
                 pointLabels: { show: true },
             },
@@ -102,7 +102,12 @@ $(document).ready(function () {
             function (ev, seriesIndex, pointIndex, data) {
                 seriesIndex++;
                 pointIndex++;
-                $('#info').html('sentence: '+seriesIndex+', word: '+pointIndex+' ('+data[2]+'), word length: '+data[1]); //XXX only works right for the bar graph right now
+                if (data.length == 3) {
+                    $('#info').html('sentence: '+seriesIndex+', word: '+pointIndex+' ('+data[2]+'), word length: '+data[1]);
+                }
+                else {
+                    $('#info').html('sentence: '+seriesIndex+', word: '+pointIndex+', reader velocity: '+data[1]+' WPM');
+                }
             }
         );
         plot1.replot({ resetAxes: true });
