@@ -111,6 +111,18 @@ $(document).ready(function () {
             }
         );
         plot1.replot({ resetAxes: true });
+        $('#show_labels').click(
+            function() {
+                //var $checkbox = $(this);
+                console.log($(this).prop('checked'));
+                if ($(this).prop('checked')) {
+                    $('.jqplot-point-label').css('display', 'block');
+                }
+                else {
+                    $('.jqplot-point-label').css('display', 'none');
+                }
+            }
+        );
         $('#debug').html(text); //DEBUG
     });
 });
