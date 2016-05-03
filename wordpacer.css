@@ -19,6 +19,9 @@ body, html {
 #wordchart {
     width: 100%;
 }
+#controlchart {
+    height: 100px;
+}
 #stats {
     display: none;
 }

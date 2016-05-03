@@ -83,10 +83,22 @@ function graphText(text) {
             pointLabels: { show: false },
         },
         series: plotSeries,
+        cursor: {
+            show: false,
+            zoom: true,
+            showTooltip: false
+        },
+        axesDefaults: {
+            rendererOptions: {
+                alignTicks: true,
+            }
+        },
         axes: {
             xaxis: {
                 //renderer: $.jqplot.CategoryAxisRenderer,
-                ticks: ticks,
+                //ticks: ticks,
+                min: 0,
+                max: ticks.length - 1,
                 showTicks: false
             },
             yaxis: {
@@ -113,6 +125,45 @@ function graphText(text) {
         },
         highlighter: { show: false }
     });
+
+    controlPlot = $.jqplot('controlchart', [velocityCombo], {
+        seriesDefaults: {
+            color: '#f00',
+            showMarker: false,
+            pointLabels: { show: false }
+        },
+        cursor: {
+            show: true,
+            zoom: true,
+            showTooltip: false,
+            constrainZoomTo: 'x'
+        },
+        axesDefaults: {
+            showTicks: false
+        },
+        axes: {
+            xaxis: {
+                //ticks: ticks,
+                min: 0,
+                max: ticks.length - 1,
+                showTicks: false
+            },
+            yaxis: {
+                rendererOptions: {
+                    alignTicks: true,
+                    forceTickAt0: true,
+                    min: stats.minVelocity,
+                    max: stats.maxVelocity,
+                }
+            },
+        },
+        canvasOverlay: {
+            show: true,
+            objects: paragraphRectangles,
+        },
+        highlighter: { show: false }
+    });
+    $.jqplot.Cursor.zoomProxy(plot1, controlPlot);
     //plot1.series[plot1.series.length - 1].renderer = $.jqplot.LineRenderer();
     //console.log(plot1.series[plot1.series.length - 1]); //DEBUG
     end = performance.now(); //DEBUG
@@ -133,6 +184,10 @@ function graphText(text) {
     plot1.replot({
         resetAxes: true,
         axes: {
+            xaxis: {
+                min: 0,
+                max: ticks.length - 1
+            },
             y2axis: {
                 min: stats.minVelocity - 20,
                 max: stats.maxVelocity + 20
