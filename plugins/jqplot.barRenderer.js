@@ -593,7 +593,7 @@
         var pointx, points, pointy, nvals, nseries, pos;
         
         if (this._stack && this.shadow) {
-            if (this.barWidth == null) {
+            if (this.barWidth == null || this.rendererOptions.barWidth == null) {
                 this.renderer.setBarWidth.call(this);
             }
         
