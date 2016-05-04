@@ -70,23 +70,24 @@ function graphText(text) {
     //console.log($('#wordchart').width() / wordData.wordcount); //DEBUG
     var plot1 = $.jqplot('wordchart', wordCombo, {
         // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
-        animate: !$.jqplot.use_excanvas,
-        animateReplot: true,
+        //animate: !$.jqplot.use_excanvas,
+        //animateReplot: true,
         seriesColors: ['#889', '#ccd'],
         seriesDefaults: {
             renderer: $.jqplot.BarRenderer,
             rendererOptions: {
                 barWidth: $('#wordchart').width() / wordData.wordcount,
                 barPadding: - $('#wordchart').width() / wordData.wordcount,
-                barMargin: 0
+                barMargin: 0,
+                shadowOffset: 0
             },
-            pointLabels: { show: false },
+            pointLabels: { show: true },
         },
         series: plotSeries,
         cursor: {
-            show: false,
+            show: true,
             zoom: true,
-            showTooltip: false
+            showTooltip: false,
         },
         axesDefaults: {
             rendererOptions: {
@@ -169,6 +170,8 @@ function graphText(text) {
     end = performance.now(); //DEBUG
     console.log('Graphed. (', end - start, 'ms)'); //DEBUG
 
+    $.jqplot.postDrawHooks.push(zoomHandler); // Catch zoom event
+
     $('#wordchart').bind('jqplotDataClick',
         function (ev, seriesIndex, pointIndex, data) {
             seriesIndex++;
@@ -195,6 +198,27 @@ function graphText(text) {
         }
     });
 }
+function showhideLabels() {
+    if ($('#show_labels').prop('checked')) {
+        $('.jqplot-point-label').css('display', 'block');
+    }
+    else {
+        $('.jqplot-point-label').css('display', 'none');
+    }
+}
+function zoomHandler() {
+    var c = this.plugins.cursor;
+    if (c._zoom.zooming) { //Zoom in
+        $('#show_labels').prop('checked', true);
+        showhideLabels();
+        console.log('Zoom in'); //DEBUG
+    }
+    else { // Zoom out
+        $('#show_labels').prop('checked', false);
+        showhideLabels();
+        console.log('Zoom out'); //DEBUG
+    }
+}
 
 $(document).ready(function () {
     var md = window.markdownit({typographer: true});
@@ -202,6 +226,7 @@ $(document).ready(function () {
 
     text = markitdown(md.render($('#source').val()));
     graphText(text);
+    showhideLabels();
 
     $('#source').keyup(function () {
         text = markitdown(md.render($('#source').val()));
@@ -209,17 +234,17 @@ $(document).ready(function () {
 
     $('#doit').click(function () {
         graphText(text);
-/*        $('#show_labels').click(
-            function() {
-                //var $checkbox = $(this);
-                console.log($(this).prop('checked'));
-                if ($(this).prop('checked')) {
-                    $('.jqplot-point-label').css('display', 'block');
-                }
-                else {
-                    $('.jqplot-point-label').css('display', 'none');
-                }
-            }
-        );*/
+        showhideLabels();
+    });
+
+    $('#reset_graph').click(function () {
+        controlPlot.resetZoom();
+        showhideLabels();
+    });
+
+    $('#show_labels').click(function () {
+        //var $checkbox = $(this);
+        //console.log($(this).prop('checked')); //DEBUG
+        showhideLabels();
     });
 });

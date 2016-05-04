@@ -16,11 +16,16 @@ body, html {
 #container {
     width: 100%;
 }
+#info {
+    clear: both;
+}
 #wordchart {
     width: 100%;
 }
 #controlchart {
+    width: 50%;
     height: 100px;
+    float: right;
 }
 #stats {
     display: none;
