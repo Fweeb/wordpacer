@@ -13,6 +13,9 @@ body, html {
     font-weight: bold;
     color: #000;
 }
+mark {
+    background: #ff0;
+}
 #container {
     width: 100%;
 }
@@ -42,7 +45,7 @@ body, html {
     margin: 0;
     padding: 1px;
     border: 0 none;
-    font: 16px Arial, Helvetica, sans-serif;
+    font: 20px Arial, Helvetica, sans-serif;
     background: #ddd;
     resize: none;
 }

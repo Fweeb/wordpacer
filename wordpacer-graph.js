@@ -174,6 +174,25 @@ function graphText(text) {
 
     $('#wordchart').bind('jqplotDataClick',
         function (ev, seriesIndex, pointIndex, data) {
+            // Clear highlighting
+            $('#result-html').find('mark').contents().unwrap();
+            // Figure out which paragraph the selected word is in, and highlight it
+            var tokens;
+            for (var i = 0; i < wordData.paragraphStarts.length; i++) {
+                if (wordCombo[seriesIndex][pointIndex][0] >= wordData.paragraphStarts[i]) {
+                    continue;
+                }
+                else {
+                    tokens = $('#result-html :nth-child('+i+')').html().split(' ');
+                    word = wordCombo[seriesIndex][pointIndex][0] - wordData.paragraphStarts[i - 1];
+                    tokens[word] = "<mark>" + tokens[word] + "</mark>";
+                    $('#result-html :nth-child('+i+')').html(tokens.join(' '));
+                    break;
+                }
+            }
+            //console.log(tokens, word,
+            //            wordData.paragraphStarts,
+            //            wordCombo[seriesIndex][pointIndex]); //DEBUG
             seriesIndex++;
             pointIndex++;
             if (data.length == 3) {
@@ -211,12 +230,12 @@ function zoomHandler() {
     if (c._zoom.zooming) { //Zoom in
         $('#show_labels').prop('checked', true);
         showhideLabels();
-        console.log('Zoom in'); //DEBUG
+        //console.log('Zoom in'); //DEBUG
     }
     else { // Zoom out
         $('#show_labels').prop('checked', false);
         showhideLabels();
-        console.log('Zoom out'); //DEBUG
+        //console.log('Zoom out'); //DEBUG
     }
 }
 
