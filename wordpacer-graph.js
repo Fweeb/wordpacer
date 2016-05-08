@@ -185,10 +185,30 @@ function graphText(text) {
                 else {
                     var tag = $('#result-html').children()[i-1];
                     tag = jQuery(tag).prop("tagName").toLowerCase();
-                    tokens = $('#result-html '+tag+':nth-child('+i+')').html().split(' ');
+                    // Find em dashes
+                    var paragraph = $('#result-html '+tag+':nth-child('+i+')').html();
+                    var regex = /\u2014/g, result, indicies = [];
+                    while ((result = regex.exec(paragraph))) {
+                        indicies.push(result.index);
+                    }
+                    //console.log(indicies); //DEBUG
+
+                    tokens = paragraph.split(/[ \u2014]/);
                     word = wordCombo[seriesIndex][pointIndex][0] - wordData.paragraphStarts[i - 1];
                     tokens[word] = "<mark>" + tokens[word] + "</mark>";
-                    $('#result-html '+tag+':nth-child('+i+')').html(tokens.join(' '));
+                    paragraph = tokens.join(' ');
+
+                    //Put em dashes back
+                    for (var j = 0; j < indicies.length; j++) {
+                        if (paragraph.search("<mark>") > indicies[j]) {
+                            paragraph = paragraph.substr(0, indicies[j]) + '\u2014' + paragraph.substr(indicies[j] + 1);
+                        }
+                        else {
+                            paragraph = paragraph.substr(0, indicies[j] + 13) + '\u2014' + paragraph.substr(indicies[j] + 14);
+                        }
+                        //console.log(paragraph); //DEBUG
+                    }
+                    $('#result-html '+tag+':nth-child('+i+')').html(paragraph);
                     break;
                 }
             }
