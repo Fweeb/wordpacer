@@ -183,10 +183,12 @@ function graphText(text) {
                     continue;
                 }
                 else {
-                    tokens = $('#result-html :nth-child('+i+')').html().split(' ');
+                    var tag = $('#result-html').children()[i-1];
+                    tag = jQuery(tag).prop("tagName").toLowerCase();
+                    tokens = $('#result-html '+tag+':nth-child('+i+')').html().split(' ');
                     word = wordCombo[seriesIndex][pointIndex][0] - wordData.paragraphStarts[i - 1];
                     tokens[word] = "<mark>" + tokens[word] + "</mark>";
-                    $('#result-html :nth-child('+i+')').html(tokens.join(' '));
+                    $('#result-html '+tag+':nth-child('+i+')').html(tokens.join(' '));
                     break;
                 }
             }
