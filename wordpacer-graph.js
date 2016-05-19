@@ -229,6 +229,10 @@ $('#wordchart').bind('jqplotDataClick',
                     //console.log(paragraph); //DEBUG
                 }
                 $('#result-html '+tag+':nth-child('+i+')').html(paragraph);
+                // Scroll result to the selected word (mostly works, could use tweaking)
+                $('#result-html').scrollTop(
+                    $('#result-html '+tag+':nth-child('+i+')').offset().top
+                );
                 break;
             }
         }
