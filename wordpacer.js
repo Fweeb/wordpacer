@@ -31,14 +31,14 @@ function getWords(sentence) {
     return words;
 }
 function getWordlengths(words) {
-    var wordlengths = [];
+    var wordlengths = new Array();
     for (var j = 0; j < words.length; j++) {
         wordlengths.push(words[j].length);
     }
     return wordlengths;
 }
 function addWordticks(words, currentWord) {
-    var ticks = [];
+    var ticks = new Array();
     for (var i = 0; i < words.length; i++) {
         ticks.push(currentWord);
         currentWord++;
@@ -89,7 +89,7 @@ function calculateVelocity(wordlength, currentVelocity) {
     return velocity;
 }
 function getWordVelocities(words, multiplier, currentVelocity) {
-    var velocities = [];
+    var velocities = new Array();
 
     // One-word sentences set velocity to 200 WPM
     if (words.length == 1) {
@@ -190,7 +190,7 @@ function gatherData(text) {
     //console.log(paragraphs); //DEBUG
 }
 function makeParagraphRectangles(paragraphStarts) {
-    var rectangles = []
+    var rectangles = new Array();
     for (var i = 0; i < paragraphStarts.length - 1; i++) {
         rectangles.push({ rectangle: {
             xmin: paragraphStarts[i] - 0.5, xmax: paragraphStarts[i + 1] - 0.5,

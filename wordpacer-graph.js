@@ -1,3 +1,5 @@
+var wordCombo = new Array();
+
 function markitdown(source) {
     var html = source;
     $('#result-html').html(html);
@@ -37,11 +39,11 @@ function graphText(text) {
     start = performance.now(); //DEBUG
     console.log('Assembling graph data...'); //DEBUG
     var ticks = Array.apply(null, Array(wordData.wordcount + 2)).map(function(_, i) {return i;}); // the +2 is needed
-    var wordCombo = [];
-    var velocityCombo = [];
+    wordCombo = new Array();
+    var velocityCombo = new Array();
     velocityCombo.push([0,0]);
     for (var i = 0; i < wordData.wordticks.length; i++) {
-        wordCombo[i] = [];
+        wordCombo[i] = new Array();
         for (var j = 0; j < wordData.wordticks[i].length; j++) {
             wordCombo[i][j] = [wordData.wordticks[i][j], wordData.wordlengths[i][j], wordData.allWords[i][j]];
             velocityCombo.push([wordData.wordticks[i][j], wordData.velocities[wordData.wordticks[i][j]-1]]);
@@ -54,7 +56,7 @@ function graphText(text) {
     console.log('Assembled. (', end - start, 'ms)'); //DEBUG
     start = performance.now(); //DEBUG
     console.log('Creating graph...');
-    var plotSeries = [];
+    var plotSeries = new Array();
     for (var i = 0; i < wordCombo.length - 1; i++) {
         plotSeries.push({});
     }
@@ -172,59 +174,6 @@ function graphText(text) {
 
     $.jqplot.postDrawHooks.push(zoomHandler); // Catch zoom event
 
-    $('#wordchart').bind('jqplotDataClick',
-        function (ev, seriesIndex, pointIndex, data) {
-            // Clear highlighting
-            $('#result-html').find('mark').contents().unwrap();
-            // Figure out which paragraph the selected word is in, and highlight it
-            var tokens;
-            for (var i = 0; i < wordData.paragraphStarts.length; i++) {
-                if (wordCombo[seriesIndex][pointIndex][0] >= wordData.paragraphStarts[i]) {
-                    continue;
-                }
-                else {
-                    var tag = $('#result-html').children()[i-1];
-                    tag = jQuery(tag).prop("tagName").toLowerCase();
-                    // Find em dashes
-                    var paragraph = $('#result-html '+tag+':nth-child('+i+')').html();
-                    var regex = /\u2014/g, result, indicies = [];
-                    while ((result = regex.exec(paragraph))) {
-                        indicies.push(result.index);
-                    }
-                    //console.log(indicies); //DEBUG
-
-                    tokens = paragraph.split(/[ \u2014]/);
-                    word = wordCombo[seriesIndex][pointIndex][0] - wordData.paragraphStarts[i - 1];
-                    tokens[word] = "<mark>" + tokens[word] + "</mark>";
-                    paragraph = tokens.join(' ');
-
-                    //Put em dashes back
-                    for (var j = 0; j < indicies.length; j++) {
-                        if (paragraph.search("<mark>") > indicies[j]) {
-                            paragraph = paragraph.substr(0, indicies[j]) + '\u2014' + paragraph.substr(indicies[j] + 1);
-                        }
-                        else {
-                            paragraph = paragraph.substr(0, indicies[j] + 13) + '\u2014' + paragraph.substr(indicies[j] + 14);
-                        }
-                        //console.log(paragraph); //DEBUG
-                    }
-                    $('#result-html '+tag+':nth-child('+i+')').html(paragraph);
-                    break;
-                }
-            }
-            //console.log(tokens, word,
-            //            wordData.paragraphStarts,
-            //            wordCombo[seriesIndex][pointIndex]); //DEBUG
-            seriesIndex++;
-            pointIndex++;
-            if (data.length == 3) {
-                $('#info').html('sentence: '+seriesIndex+', word: '+pointIndex+' ('+data[2]+'), word length: '+data[1]);
-            }
-            else {
-                $('#info').html('sentence: '+seriesIndex+', word: '+pointIndex+', reader velocity: '+data[1]+' WPM');
-            }
-        }
-    );
     plot1.replot({
         resetAxes: true,
         axes: {
@@ -239,6 +188,63 @@ function graphText(text) {
         }
     });
 }
+$('#wordchart').bind('jqplotDataClick',
+    function (ev, seriesIndex, pointIndex, data) {
+        // Clear highlighting
+        $('#result-html').find('mark').contents().unwrap();
+        // Figure out which paragraph the selected word is in, and highlight it
+        var tokens;
+        for (var i = 0; i < wordData.paragraphStarts.length; i++) {
+            //console.log('seriesIndex:', seriesIndex,
+            //            ' pointIndex:', pointIndex,
+            //            ' i:', i,
+            //            ' wordCombo:', wordCombo); //DEBUG
+            if (wordCombo[seriesIndex][pointIndex][0] >= wordData.paragraphStarts[i]) {
+                continue;
+            }
+            else {
+                var tag = $('#result-html').children()[i-1];
+                tag = jQuery(tag).prop("tagName").toLowerCase();
+                // Find em dashes
+                var paragraph = $('#result-html '+tag+':nth-child('+i+')').html();
+                var regex = /\u2014/g, result, indicies = new Array;
+                while ((result = regex.exec(paragraph))) {
+                    indicies.push(result.index);
+                }
+                //console.log(indicies); //DEBUG
+
+                tokens = paragraph.split(/[ \u2014]/);
+                word = wordCombo[seriesIndex][pointIndex][0] - wordData.paragraphStarts[i - 1];
+                tokens[word] = "<mark>" + tokens[word] + "</mark>";
+                paragraph = tokens.join(' ');
+
+                //Put em dashes back
+                for (var j = 0; j < indicies.length; j++) {
+                    if (paragraph.search("<mark>") > indicies[j]) {
+                        paragraph = paragraph.substr(0, indicies[j]) + '\u2014' + paragraph.substr(indicies[j] + 1);
+                    }
+                    else {
+                        paragraph = paragraph.substr(0, indicies[j] + 13) + '\u2014' + paragraph.substr(indicies[j] + 14);
+                    }
+                    //console.log(paragraph); //DEBUG
+                }
+                $('#result-html '+tag+':nth-child('+i+')').html(paragraph);
+                break;
+            }
+        }
+        //console.log(wordData.paragraphStarts,
+        //            wordCombo[seriesIndex][pointIndex]); //DEBUG
+        seriesIndex++;
+        pointIndex++;
+        if (data.length == 3) {
+            $('#info').html('sentence: '+seriesIndex+', word: '+pointIndex+' ('+data[2]+'), word length: '+data[1]);
+        }
+        else {
+            $('#info').html('sentence: '+seriesIndex+', word: '+pointIndex+', reader velocity: '+data[1]+' WPM');
+        }
+    }
+);
+
 function showhideLabels() {
     if ($('#show_labels').prop('checked')) {
         $('.jqplot-point-label').css('display', 'block');
