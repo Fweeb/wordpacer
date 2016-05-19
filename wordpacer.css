@@ -16,6 +16,9 @@ body, html {
 mark {
     background: #ff0;
 }
+mark.paragraph {
+    background: #b2edca;
+}
 #container {
     width: 100%;
 }
@@ -41,7 +44,7 @@ mark {
 }
 #sourcetext #source {
     width: 100%;
-    height: 30em;
+    height: 25em;
     margin: 0;
     padding: 1px;
     border: 0 none;
@@ -51,7 +54,7 @@ mark {
 }
 #result-html {
     width: 45%;
-    height: 30em;
+    height: 25em;
     float: left;
     padding: 0 2.5%;
     overflow-y: scroll;
