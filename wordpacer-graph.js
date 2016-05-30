@@ -4,15 +4,15 @@ function markitdown(source) {
     var html = source;
     $('#result-html').html(html);
     var text = strip(html); // Get plain text XXX assumes Markdown -> HTML
-    $('#debug').html(text); //DEBUG
+    //$('#debug').html(text); //DEBUG
     return text;
 }
 function graphText(text) {
-    console.log('Gathering data...'); //DEBUG
-    var start = performance.now(); //DEBUG
+    //console.log('Gathering data...'); //DEBUG
+    //var start = performance.now(); //DEBUG
     wordData = gatherData(text);
-    var end = performance.now(); //DEBUG
-    console.log('Gathered. (', end - start, 'ms)'); //DEBUG
+    //var end = performance.now(); //DEBUG
+    //console.log('Gathered. (', end - start, 'ms)'); //DEBUG
 
     var stats = {
         avgWordlength: 0,
@@ -34,10 +34,9 @@ function graphText(text) {
     $('#result-stats #min_velocity').html(stats.minVelocity);
     $('#result-stats #max_velocity').html(stats.maxVelocity);
     $('#result-stats #avg_velocity').html(stats.avgVelocity);
-    //console.log(wordData.wordlengths, stats.avgWordlength); //DEBUG
 
-    start = performance.now(); //DEBUG
-    console.log('Assembling graph data...'); //DEBUG
+    //start = performance.now(); //DEBUG
+    //console.log('Assembling graph data...'); //DEBUG
     var ticks = Array.apply(null, Array(wordData.wordcount + 2)).map(function(_, i) {return i;}); // the +2 is needed
     wordCombo = new Array();
     var velocityCombo = new Array();
@@ -47,14 +46,12 @@ function graphText(text) {
         for (var j = 0; j < wordData.wordticks[i].length; j++) {
             wordCombo[i][j] = [wordData.wordticks[i][j], wordData.wordlengths[i][j], wordData.allWords[i][j]];
             velocityCombo.push([wordData.wordticks[i][j], wordData.velocities[wordData.wordticks[i][j]-1]]);
-            //console.log('i:',i,'j:',j,'wordcombo:',wordCombo[i][j]); //DEBUG
         }
     }
-    //console.log(velocityCombo); //DEBUG
     wordCombo.push(velocityCombo);
-    end = performance.now(); //DEBUG
-    console.log('Assembled. (', end - start, 'ms)'); //DEBUG
-    start = performance.now(); //DEBUG
+    //end = performance.now(); //DEBUG
+    //console.log('Assembled. (', end - start, 'ms)'); //DEBUG
+    //start = performance.now(); //DEBUG
     console.log('Creating graph...');
     var plotSeries = new Array();
     for (var i = 0; i < wordCombo.length - 1; i++) {
@@ -67,9 +64,7 @@ function graphText(text) {
         showMarker: false
     });
     var paragraphRectangles = makeParagraphRectangles(wordData.paragraphStarts);
-    //console.log(wordCombo) //DEBUG
     $.jqplot.config.enablePlugins = true;
-    //console.log($('#wordchart').width() / wordData.wordcount); //DEBUG
     var plot1 = $.jqplot('wordchart', wordCombo, {
         // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
         //animate: !$.jqplot.use_excanvas,
@@ -168,9 +163,8 @@ function graphText(text) {
     });
     $.jqplot.Cursor.zoomProxy(plot1, controlPlot);
     //plot1.series[plot1.series.length - 1].renderer = $.jqplot.LineRenderer();
-    //console.log(plot1.series[plot1.series.length - 1]); //DEBUG
-    end = performance.now(); //DEBUG
-    console.log('Graphed. (', end - start, 'ms)'); //DEBUG
+    //end = performance.now(); //DEBUG
+    //console.log('Graphed. (', end - start, 'ms)'); //DEBUG
 
     $.jqplot.postDrawHooks.push(zoomHandler); // Catch zoom event
 
@@ -195,10 +189,6 @@ $('#wordchart').bind('jqplotDataClick',
         // Figure out which paragraph the selected word is in, and highlight it
         var tokens;
         for (var i = 0; i < wordData.paragraphStarts.length; i++) {
-            //console.log('seriesIndex:', seriesIndex,
-            //            ' pointIndex:', pointIndex,
-            //            ' i:', i,
-            //            ' wordCombo:', wordCombo); //DEBUG
             if (wordCombo[seriesIndex][pointIndex][0] >= wordData.paragraphStarts[i]) {
                 continue;
             }
@@ -211,7 +201,6 @@ $('#wordchart').bind('jqplotDataClick',
                 while ((result = regex.exec(paragraph))) {
                     indicies.push(result.index);
                 }
-                //console.log(indicies); //DEBUG
 
                 tokens = paragraph.split(/[ \u2014]/);
                 word = wordCombo[seriesIndex][pointIndex][0] - wordData.paragraphStarts[i - 1];
@@ -226,7 +215,6 @@ $('#wordchart').bind('jqplotDataClick',
                     else {
                         paragraph = paragraph.substr(0, indicies[j] + 13) + '\u2014' + paragraph.substr(indicies[j] + 14);
                     }
-                    //console.log(paragraph); //DEBUG
                 }
                 $('#result-html '+tag+':nth-child('+i+')').html('<mark class="paragraph">' + paragraph + '</mark>');
                 // Scroll result to the selected word (mostly works, could use tweaking)
@@ -236,8 +224,6 @@ $('#wordchart').bind('jqplotDataClick',
                 break;
             }
         }
-        //console.log(wordData.paragraphStarts,
-        //            wordCombo[seriesIndex][pointIndex]); //DEBUG
         seriesIndex++;
         pointIndex++;
         if (data.length == 3) {
@@ -262,12 +248,10 @@ function zoomHandler() {
     if (c._zoom.zooming) { //Zoom in
         $('#show_labels').prop('checked', true);
         showhideLabels();
-        //console.log('Zoom in'); //DEBUG
     }
     else { // Zoom out
         $('#show_labels').prop('checked', false);
         showhideLabels();
-        //console.log('Zoom out'); //DEBUG
     }
 }
 
@@ -294,8 +278,6 @@ $(document).ready(function () {
     });
 
     $('#show_labels').click(function () {
-        //var $checkbox = $(this);
-        //console.log($(this).prop('checked')); //DEBUG
         showhideLabels();
     });
 });
