@@ -5,6 +5,12 @@ body, html {
     color: #555;
     font: 16px Arial, Helvetica, sans-serif;
 }
+a {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
 #sitehead {
     margin: 0.5em 1em;
     color: #000;
@@ -67,4 +73,14 @@ mark.paragraph {
 }
 #debug_area {
     display: none;
+}
+footer {
+    margin: 1em 3em;
+    font-size: small;
+}
+footer #footleft {
+    float: left;
+}
+footer #footright {
+    float: right;
 }

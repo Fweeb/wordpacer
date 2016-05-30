@@ -48,15 +48,21 @@
             <div id="sourcetext">
                 <textarea id="source"># Paste your text in here
 
-(Assuming Markdown syntax for the time being)
+In short, *Word Pacer* is a little web app designed to help you adjust the pacing in your writing. Whether it's fiction, essay, or poetry, the idea is that you can control how fast your audience reads (I call it **reader velocity**) by adjusting the length of your words, sentences, and paragraphs. That last sentence, for example, is long. It would slow a reader down. Here's the basic premise:
 
-One.
+**Long words, paragraphs, and sentences reduce reader velocity.**
 
-Test *test* test. This is a more-than8-characterword. This is a test---right here. Isn't it? It is! "Yeah."
+**Short words, paragraphs, and sentences increase reader velocity.**
 
-And now, I will totally write a sentence that has more than 15 words in it... for science. Incidentally, the previous sentence had more than 5 sentences.
+**Very short paragraphs and sentences (for example, one word long or one sentence long) dramatically reduce reader velocity.**
 
-This is a one-sentence paragraph.
+There's some nuance in there, but that's the gist of it. When you paste your text, the graphs above show breakdowns of each paragraph and the lengths of each word in them. The red line indicates your reader velocity. You can zoom in on part of the graph by drawing a box in it. Or you can use the small navigation graph in the upper right corner. Clicking on individual words in the graph should highlight that word in the rendered text on the right.
+
+*Word Pacer* primarily supports Markdown syntax with a couple additional features. For instance, the `---` is an em dash (---). However, plain text should also work just fine so long as you have two carriage returns between paragraphs. Eventually, I'll add support for just plain text... and perhaps if there's interest, I'll see about adding other text formats.
+
+*Word Pacer* is still very much under development. It should analyze 2000 words of text in just over 3 seconds after you click the *Analyze Text* button. If you're reading this, chances are good that I contacted you directly about checking it out. It's hosted on GitHub and released under the GPL3. Please use that for giving me feedback (you can also track me down via email or social media, but the issue tracker is easier to follow). I'm mostly interested in feedback on the user interface, performance, and the accuracy of the reader velocity calculations... but I'll take whatever you've got.
+
+Have fun!
 </textarea>
             </div>
             <div id="result-html"></div>
@@ -65,6 +71,10 @@ This is a one-sentence paragraph.
                 <h1>Debugging</h1>
                 <pre><div id="debug"></div></pre>
             </div>
+            <footer>
+                <div id="footleft">&copy; 2016, <a href="http://monsterjavaguns.com">Jason van Gumster</a> | <a href="https://github.com/Fweeb/wordpacer">Feedback/Source code</a></div>
+                <div id="footright"><a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown Cheatsheet</a></div>
+            </footer>
         </div>
     </body>
 
