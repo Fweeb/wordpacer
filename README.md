@@ -17,6 +17,7 @@ There's some nuance in there, but that's the gist of it. When you paste your tex
 * I'm not overly fond of the name. :P
 * Site has only thusfar been tested in Firefox and Chromium. Test results from other browsers are most welcome.
 * Highlighting doesn't work for hyperlinks included in the text.
+* Abbreviations like e.g., i.e., Dr., etc. tend to mess up velocity calculations.
 * Lists (ordered or unordered) mess up highlighting and paragraph calculations.
 * Graph does not update as you type; you must click the *Analyze Text* button. This is mostly a performance issue. I'm open to suggestions to how to make the graph update in real time.
 * There is no lexical analysis of the text. Reader velocity is calculated *entirely* with word length, sentence length, and paragraph length.
